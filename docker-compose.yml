@@ -1,0 +1,35 @@
+services:
+  mario-ga:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mario-ga
+    volumes:
+      - .:/app          # monta o projeto dentro do container
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SDL_VIDEODRIVER=dummy
+      - SDL_AUDIODRIVER=dummy
+      - SDL_RENDER_DRIVER=software
+    stdin_open: true
+    tty: true
+
+  # Serviço separado para ASSISTIR o Mario jogar (requer X11 no Linux)
+  mario-watch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mario-watch
+    volumes:
+      - .:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=${DISPLAY:-:0}
+      - SDL_VIDEODRIVER=x11
+      - SDL_AUDIODRIVER=dummy
+    stdin_open: true
+    tty: true
+    network_mode: host
+    profiles:
+      - watch 
